@@ -24,12 +24,20 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Configure Android Project
+      - name: Generate Android Skeleton
+        run: flutter create . --platforms=android
+
+      - name: Add Internet Permission
         run: |
-          if [ ! -d "android" ]; then
-            flutter create . --platforms=android
-          fi
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
+          python3 -c "
+          path = 'android/app/src/main/AndroidManifest.xml'
+          with open(path, 'r') as f:
+              content = f.read()
+          if 'android.permission.INTERNET' not in content:
+              content = content.replace('<manifest', '<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <uses-permission android:name=\"android.permission.INTERNET\"/>', 1)
+              with open(path, 'w') as f:
+                  f.write(content)
+          "
 
       - name: Install dependencies
         run: flutter pub get
