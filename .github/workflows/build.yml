@@ -24,20 +24,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Generate Android Skeleton
-        run: flutter create . --platforms=android
+      - name: Force recreate Android files
+        run: flutter create . --platforms=android --overwrite
 
-      - name: Add Internet Permission
+      - name: Add Internet permission
         run: |
           python3 -c "
-          path = 'android/app/src/main/AndroidManifest.xml'
-          with open(path, 'r') as f:
-              content = f.read()
-          if 'android.permission.INTERNET' not in content:
-              content = content.replace('<manifest', '<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <uses-permission android:name=\"android.permission.INTERNET\"/>', 1)
-              with open(path, 'w') as f:
-                  f.write(content)
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('android/app/src/main/AndroidManifest.xml')
+          root = tree.getroot()
+          perm = ET.Element('uses-permission', {'android:name': 'android.permission.INTERNET'})
+          root.insert(0, perm)
+          tree.write('android/app/src/main/AndroidManifest.xml')
           "
+
+      - name: Restore Mostlee code
+        run: |
+          git checkout HEAD -- lib/main.dart
 
       - name: Install dependencies
         run: flutter pub get
