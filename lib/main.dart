@@ -143,7 +143,6 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Интерактивная светлая карта CartoDB / OSM
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -184,8 +183,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ],
           ),
-
-          // 2. Интерактивная верхняя панель (Поиск ИИ и Фильтры)
           Positioned(
             top: 50,
             left: 16,
@@ -245,8 +242,6 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
           ),
-
-          // 3. Кнопка возврата к центру геолокации
           Positioned(
             right: 16,
             bottom: 100,
@@ -260,8 +255,6 @@ class _MapScreenState extends State<MapScreen> {
               child: const Icon(Icons.center_focus_strong, color: Color(0xFF6B7A5E)),
             ),
           ),
-
-          // 4. Нижний переключатель прогулочных режимов
           Positioned(
             bottom: 30,
             left: 0,
