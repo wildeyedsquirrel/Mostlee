@@ -24,6 +24,26 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Save main.dart
+        run: cp lib/main.dart lib/main.dart.bak || true
+
+      - name: Generate Android structure
+        run: |
+          flutter create . --platforms=android --overwrite
+          cp lib/main.dart.bak lib/main.dart || true
+
+      - name: Enable Internet Permission
+        run: |
+          python3 -c "
+          import xml.etree.ElementTree as ET
+          path = 'android/app/src/main/AndroidManifest.xml'
+          tree = ET.parse(path)
+          root = tree.getroot()
+          perm = ET.Element('uses-permission', {'android:name': 'android.permission.INTERNET'})
+          root.insert(0, perm)
+          tree.write(path)
+          "
+
       - name: Install dependencies
         run: flutter pub get
 
