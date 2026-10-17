@@ -24,24 +24,6 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Force recreate Android files
-        run: flutter create . --platforms=android --overwrite
-
-      - name: Add Internet permission
-        run: |
-          python3 -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('android/app/src/main/AndroidManifest.xml')
-          root = tree.getroot()
-          perm = ET.Element('uses-permission', {'android:name': 'android.permission.INTERNET'})
-          root.insert(0, perm)
-          tree.write('android/app/src/main/AndroidManifest.xml')
-          "
-
-      - name: Restore Mostlee code
-        run: |
-          git checkout HEAD -- lib/main.dart
-
       - name: Install dependencies
         run: flutter pub get
 
