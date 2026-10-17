@@ -24,24 +24,20 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Save main.dart
-        run: cp lib/main.dart lib/main.dart.bak || true
-
-      - name: Generate Android structure
+      - name: Recreate clean Android project
         run: |
-          flutter create . --platforms=android --overwrite
-          cp lib/main.dart.bak lib/main.dart || true
+          rm -rf android
+          flutter create . --platforms=android --org com.mostlee.app
 
-      - name: Enable Internet Permission
+      - name: Add Internet Permission
         run: |
           python3 -c "
-          import xml.etree.ElementTree as ET
           path = 'android/app/src/main/AndroidManifest.xml'
-          tree = ET.parse(path)
-          root = tree.getroot()
-          perm = ET.Element('uses-permission', {'android:name': 'android.permission.INTERNET'})
-          root.insert(0, perm)
-          tree.write(path)
+          with open(path, 'r') as f:
+              content = f.read()
+          content = content.replace('<manifest', '<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <uses-permission android:name=\"android.permission.INTERNET\"/>', 1)
+          with open(path, 'w') as f:
+              f.write(content)
           "
 
       - name: Install dependencies
