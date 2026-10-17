@@ -97,5 +97,230 @@ class _MapScreenState extends State<MapScreen> {
               autofocus: true,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Введите
-                
+                hintText: 'Введите пожелания...',
+                filled: true,
+                fillColor: const Color(0xFFFAF7F2),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6B7A5E),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('ИИ подбирает маршрут: "${_searchController.text}"'),
+                      backgroundColor: const Color(0xFF6B7A5E),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Построить маршрут',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _moscowCenter,
+              initialZoom: 14.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+                userAgentPackageName: 'com.mostlee.app',
+              ),
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: _moscowCenter,
+                    width: 44,
+                    height: 44,
+                    child: GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Вы находитесь в центре Москвы')),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFD98A6C),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black26, blurRadius: 10),
+                          ],
+                        ),
+                        child: const Icon(Icons.my_location, color: Colors.white, size: 22),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            top: 50,
+            left: 16,
+            right: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.95),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: _showAiDialog,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.auto_awesome, color: Color(0xFF6B7A5E)),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Mostlee AI: куда отправимся?',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Настройки слоёв карты')),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFAF7F2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.tune_rounded, color: Color(0xFFD98A6C), size: 20),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 16,
+            bottom: 100,
+            child: FloatingActionButton(
+              mini: true,
+              backgroundColor: Colors.white,
+              elevation: 4,
+              onPressed: () {
+                _mapController.move(_moscowCenter, 14.0);
+              },
+              child: const Icon(Icons.center_focus_strong, color: Color(0xFF6B7A5E)),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _modes.length,
+                itemBuilder: (context, index) {
+                  final mode = _modes[index];
+                  final isSelected = _selectedMode == mode['name'];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedMode = mode['name'];
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Выбран режим: ${_selectedMode}'),
+                          duration: const Duration(milliseconds: 800),
+                        ),
+                      );
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      margin: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? mode['color'] : Colors.white.withOpacity(0.92),
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            mode['icon'],
+                            color: isSelected ? Colors.white : mode['color'],
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            mode['name'],
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
