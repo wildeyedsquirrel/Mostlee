@@ -24,8 +24,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Fix Android Build Files
-        run: flutter create . --platforms=android
+      - name: Create Android Project with Internet Permission
+        run: |
+          flutter create . --platforms=android --overwrite
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
 
       - name: Install dependencies
         run: flutter pub get
